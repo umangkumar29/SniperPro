@@ -2,7 +2,7 @@ from typing import List, Optional
 import traceback
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.orm import selectinload
 from datetime import datetime
 
@@ -217,3 +217,29 @@ async def refresh_all_prices():
         "task_id": task.id
     }
 
+@router.delete("/{product_id}")
+async def delete_product(
+    product_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Delete a product and all its associated data (price history, alerts).
+    """
+    # Verify product exists
+    result = await db.execute(
+        select(Product).where(Product.id == product_id)
+    )
+    product = result.scalar_one_or_none()
+    
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Delete associated data first
+    await db.execute(delete(PriceHistory).where(PriceHistory.product_id == product_id))
+    await db.execute(delete(Alert).where(Alert.product_id == product_id))
+    
+    # Delete the product
+    await db.delete(product)
+    await db.commit()
+    
+    return {"message": "Product deleted successfully", "product_id": product_id}

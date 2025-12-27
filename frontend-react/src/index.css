@@ -55,3 +55,7 @@ body {
 * {
   border-color: hsl(var(--border));
 }
+
+button, [role="button"] {
+  cursor: pointer !important;
+}

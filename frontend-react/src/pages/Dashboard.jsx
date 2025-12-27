@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getProducts } from '../services/api';
+import { getProducts, deleteProduct } from '../services/api';
 import Navbar from '../components/Navbar';
 import AddProduct from '../components/AddProduct';
 import StatsGrid from '../components/StatsGrid';
@@ -20,6 +20,18 @@ export default function Dashboard() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if(!window.confirm("Are you sure you want to stop tracking this product? This action cannot be undone.")) return;
+    try {
+        await deleteProduct(id);
+        // Optimistic update or refresh
+        setProducts(products.filter(p => p.id !== id));
+    } catch(e) {
+        alert("Failed to delete product");
+        fetchProducts(); // Revert on failure
     }
   };
 
@@ -69,7 +81,7 @@ export default function Dashboard() {
              ) : (
                 <div className="grid grid-cols-1 gap-8">
                     {products.map(product => (
-                        <ProductCard key={product.id} product={product} />
+                        <ProductCard key={product.id} product={product} onDelete={() => handleDelete(product.id)} />
                     ))}
                 </div>
              )}

@@ -12,3 +12,4 @@ export const refreshProduct = (id) => api.post(`/products/${id}/refresh`);
 export const getPriceHistory = (id) => api.get(`/analytics/${id}/trend`);
 export const getAnalysis = (id) => api.get(`/analytics/${id}/analysis`);
 export const setAlert = (data) => api.post('/alerts/', data);
+export const deleteProduct = (id) => api.delete(`/products/${id}`);
