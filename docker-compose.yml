@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # 1. The Database (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: pricedrop
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # 2. The Message Broker (Redis)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  # 3. The Backend API
+  api:
+    build: ./backend
+    command: ./start.sh api
+    ports:
+      - "8000:80"  # Container maps port 80 to localhost 8000
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql+asyncpg://user:password@db/pricedrop
+      - REDIS_URL=redis://redis:6379/0
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+    depends_on:
+      - db
+      - redis
+
+  # 4. The Background Worker
+  worker:
+    build: ./backend
+    command: ./start.sh worker
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql+asyncpg://user:password@db/pricedrop
+      - REDIS_URL=redis://redis:6379/0
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+    depends_on:
+      - db
+      - redis
+
+  # 5. The Scheduler (Beat)
+  beat:
+    build: ./backend
+    command: ./start.sh beat
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql+asyncpg://user:password@db/pricedrop
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  postgres_data:
