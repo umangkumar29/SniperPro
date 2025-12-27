@@ -84,7 +84,8 @@ Contributions are welcome! Please fork the repository and submit a pull request.
 
 ## 📄 License
 This project is licensed under the MIT License.
-<img width="1212" height="866" alt="image" src="https://github.com/user-attachments/assets/c0a58d74-2f46-4c1f-bd8c-712294029807" />
+<img width="1344" height="507" alt="image" src="https://github.com/user-attachments/assets/e33d8f50-477e-4e9d-92a9-fb6f23024459" />
+
 <img width="1384" height="548" alt="image" src="https://github.com/user-attachments/assets/5da42b8a-2661-468a-b4c7-62d90ab78e92" />
 
 
